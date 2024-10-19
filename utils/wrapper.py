@@ -29,13 +29,13 @@ class StreamDiffusionWrapper:
         output_type: Literal["pil", "pt", "np", "latent"] = "pt",
         lcm_lora_id: Optional[str] = None,
         vae_id: Optional[str] = None,
-        device: Literal["cpu", "cuda"] = "cuda",
+        device: Literal["cpu", "cuda", "mps"] = "mps",
         dtype: torch.dtype = torch.float16,
         frame_buffer_size: int = 1,
         width: int = 512,
         height: int = 512,
         warmup: int = 10,
-        acceleration: Literal["none", "xformers", "tensorrt"] = "tensorrt",
+        acceleration: Literal["none", "xformers", "tensorrt"] = "none",
         do_add_noise: bool = True,
         device_ids: Optional[List[int]] = None,
         use_lcm_lora: bool = False,
@@ -386,7 +386,7 @@ class StreamDiffusionWrapper:
         lora_dict: Optional[Dict[str, float]] = None,
         lcm_lora_id: Optional[str] = None,
         vae_id: Optional[str] = None,
-        acceleration: Literal["none", "xformers", "tensorrt"] = "tensorrt",
+        acceleration: Literal["none", "xformers", "tensorrt"] = "none",
         warmup: int = 10,
         do_add_noise: bool = True,
         use_lcm_lora: bool = False,
@@ -654,7 +654,7 @@ class StreamDiffusionWrapper:
 
                 if not os.path.exists(vae_encoder_path):
                     os.makedirs(os.path.dirname(vae_encoder_path), exist_ok=True)
-                    vae_encoder = TorchVAEEncoder(stream.vae).to(torch.device("cuda"))
+                    vae_encoder = TorchVAEEncoder(stream.vae).to(torch.device("cuda" if torch.cuda.is_available() else "mps"))
                     vae_encoder_model = VAEEncoder(
                         device=stream.device,
                         max_batch_size=self.batch_size

@@ -95,7 +95,7 @@ def stream_engine(width, height, steps, acceleration, model_id_or_path, model_ty
     return f"""Model: {model_id_or_path}\nWxH: {width}x{height}\nBatch size: {steps}\nExpected: {int(fps)} FPS\nStatus: Ready"""
 
 def git_fn(git_type):
-    repo_url = 'https://github.com/olegchomp/StreamDiffusion'
+    repo_url = 'https://github.com/pvjosue/StreamDiffusion-OSX'
 
     try:
         subprocess.run([git_executable, "reset", "--hard"], check=True)
@@ -149,10 +149,10 @@ def inst_upd():
         packages = file.read().splitlines()
 
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.1.0", "torchvision==0.16.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchvision", "--index-url", "https://download.pytorch.org/whl/nightly/cpu"])
     except Exception as e:
         print(f"An unexpected error occurred while executing the command: {e}")
-        error_packages.append('torch==2.1.0')
+        error_packages.append('torch')
 
     for package in packages:
         try:
