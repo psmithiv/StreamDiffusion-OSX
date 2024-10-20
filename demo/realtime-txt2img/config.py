@@ -34,7 +34,7 @@ class Config:
     # TinyVAE model
     vae_id: str = os.environ.get("VAE", "madebyollin/taesd")
     # Device to use
-    device: torch.device = torch.device("cuda")
+    device = torch.device("cuda" if torch.cuda.is_available() else "mps")
     # Data type
     dtype: torch.dtype = torch.float16
     # acceleration

@@ -286,7 +286,7 @@ with gr.Blocks() as demo:
         with gr.Row():
             with gr.Column(scale=1):
                 gr.Text("TouchDiffusion-v.0.0.3", label='Your version', interactive=False)
-                gr.Text(check_version, label='Latest version', interactive=False)
+                # gr.Text(check_version, label='Latest version', interactive=False) # TODO: addapt version to mine
             with gr.Column(scale=1):
                 with gr.Row():
                     for label, url in button_info:
