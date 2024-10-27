@@ -15,6 +15,7 @@ import os
 import time
 import mimetypes
 import torch
+from diffusers.utils import load_image
 
 from config import config, Args
 from util import pil_to_frame, bytes_to_pil
@@ -115,6 +116,8 @@ class App:
                         params = await self.conn_manager.get_latest_data(user_id)
                         if params is None:
                             continue
+                        # params.image = load_image(f"/Users/page/code/TouchDiffusion-main/StreamDiffusion/images/inputs/input.png").resize((512, 512))
+
                         image = pipeline.predict(params)
                         if image is None:
                             continue
@@ -158,7 +161,7 @@ class App:
         )
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "mps")
 torch_dtype = torch.float16
 pipeline = Pipeline(config, device, torch_dtype)
 app = App(config, pipeline).app

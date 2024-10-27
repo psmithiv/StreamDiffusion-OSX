@@ -9,6 +9,7 @@ import requests
 import json
 import webbrowser
 import shutil
+from torchvision.utils import save_image
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
@@ -54,7 +55,7 @@ def stream_engine(width, height, steps, acceleration, model_id_or_path, model_ty
         width=width,
         height=height,
         warmup=0,
-        acceleration="tensorrt",
+        acceleration="none",
         mode="img2img",
         use_denoising_batch=True,
         cfg_type="self",
@@ -83,8 +84,8 @@ def stream_engine(width, height, steps, acceleration, model_id_or_path, model_ty
         start_time = time.time()
         last_element = 1 if stream.batch_size != 1 else 0
         for _ in range(stream.batch_size - last_element):
-            stream(image=image_tensor)
-
+            output = stream(image=image_tensor)
+            save_image(output, f"output_{i}.png")
         end_time = time.time()
         elapsed_time = end_time - start_time
         if elapsed_time != 0:

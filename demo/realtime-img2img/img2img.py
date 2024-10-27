@@ -19,7 +19,15 @@ from PIL import Image
 import math
 
 base_model = "stabilityai/sd-turbo"
-taesd_model = "madebyollin/taesd"
+img_size = 512
+# base_model = "stabilityai/stable-diffusion-2-base"
+# base_model = "stabilityai/sdxl-turbo" # exception
+# base_model = "justinpinkney/miniSD" # Doesn't load 
+# base_model = "lambdalabs/sd-image-variations-diffusers" #to delete
+base_model = "lambdalabs/miniSD-diffusers" # Ugly with 50 iterations
+# base_model = "CompVis/stable-diffusion-v-1-4-original" # not loaded
+# base_model = "runwayml/stable-diffusion-v1-5" # Only 512, slow but cool.Ugly with 50 iterations
+# img_size = 256
 
 default_prompt = "Portrait of The Joker halloween costume, face painting, with , glare pose, detailed, intricate, full of colour, cinematic lighting, trending on artstation, 8k, hyperrealistic, focused, extreme details, unreal engine 5 cinematic, masterpiece"
 default_negative_prompt = "black and white, blurry, low resolution, pixelated,  pixel art, low quality, low fidelity"
@@ -56,27 +64,28 @@ class Pipeline:
             field="textarea",
             id="prompt",
         )
-        # negative_prompt: str = Field(
-        #     default_negative_prompt,
-        #     title="Negative Prompt",
-        #     field="textarea",
-        #     id="negative_prompt",
-        # )
+        negative_prompt: str = Field(
+            default_negative_prompt,
+            title="Negative Prompt",
+            field="textarea",
+            id="negative_prompt",
+        )
         width: int = Field(
-            512, min=2, max=15, title="Width", disabled=True, hide=True, id="width"
+            img_size, min=2, max=15, title="Width", disabled=True, hide=True, id="width"
         )
         height: int = Field(
-            512, min=2, max=15, title="Height", disabled=True, hide=True, id="height"
+            img_size, min=2, max=15, title="Height", disabled=True, hide=True, id="height"
         )
 
-    def __init__(self, args: Args, device: torch.device, torch_dtype: torch.dtype):
+    def __init__(self, args: Args, device: torch.device, torch_dtype: torch.dtype, t_index_list: list = [1]):
         params = self.InputParams()
+    
         self.stream = StreamDiffusionWrapper(
             model_id_or_path=base_model,
             use_tiny_vae=args.taesd,
             device=device,
             dtype=torch_dtype,
-            t_index_list=[35, 45],
+            t_index_list=t_index_list,
             frame_buffer_size=1,
             width=params.width,
             height=params.height,
@@ -97,13 +106,16 @@ class Pipeline:
         self.last_prompt = default_prompt
         self.stream.prepare(
             prompt=default_prompt,
-            negative_prompt=default_negative_prompt,
-            num_inference_steps=50,
-            guidance_scale=1.2,
+            # negative_prompt=default_negative_prompt,
+            num_inference_steps=2,
+            guidance_scale=0.0,
+            t_index_list=t_index_list
         )
 
     def predict(self, params: "Pipeline.InputParams") -> Image.Image:
         image_tensor = self.stream.preprocess_image(params.image)
+        # image_tensor -= image_tensor.min()
+        # image_tensor /= image_tensor.max()
         output_image = self.stream(image=image_tensor, prompt=params.prompt)
 
         return output_image

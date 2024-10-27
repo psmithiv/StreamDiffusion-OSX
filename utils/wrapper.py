@@ -50,7 +50,7 @@ class StreamDiffusionWrapper:
         use_safety_checker: bool = False,
         engine_dir: Optional[Union[str, Path]] = os.path.join(touchdiffusion_path, "engines"),
         touchdiffusion: bool = False,
-        model_type: str = 'None'
+        model_type: str = 'sd_1.5_turbo'
     ):
         """
         Initializes the StreamDiffusionWrapper.
@@ -459,21 +459,34 @@ class StreamDiffusionWrapper:
                         add_watermarker=False,
                         safety_checker=None
                     ).to(device=self.device, dtype=self.dtype)
-            elif self.model_type == 'sd_1.5_turbo':
-                pipe: StableDiffusionPipeline = StableDiffusionPipeline.from_pretrained(
-                    "stabilityai/sd-turbo",
-                    #os.path.join(touchdiffusion_path, 'models/checkpoints', "stabilityai/sd-turbo"),
-                    cache_dir = os.path.join(touchdiffusion_path, 'models/checkpoints'), 
-                    use_safetensors=True,
-                    local_files_only=self.local_files_only,
-                    torch_dtype = torch.float16,
-                    variant="fp16",
-                    add_watermarker=False,
-                    safety_checker=None
-                ).to(device=self.device, dtype=self.dtype)
+            else: #if self.model_type == 'sd_1.5_turbo':
+                try:
+                    pipe: StableDiffusionPipeline = StableDiffusionPipeline.from_pretrained(
+                        model_id_or_path,
+                        #os.path.join(touchdiffusion_path, 'models/checkpoints', "stabilityai/sd-turbo"),
+                        cache_dir = os.path.join(touchdiffusion_path, 'models/checkpoints'), 
+                        use_safetensors=True,
+                        local_files_only=self.local_files_only,
+                        torch_dtype = torch.float16,
+                        variant="fp16",
+                        add_watermarker=False,
+                        safety_checker=None
+                    ).to(device=self.device, dtype=self.dtype)
+                except:
+                    pipe: StableDiffusionPipeline = StableDiffusionPipeline.from_pretrained(
+                        model_id_or_path,
+                        #os.path.join(touchdiffusion_path, 'models/checkpoints', "stabilityai/sd-turbo"),
+                        cache_dir = os.path.join(touchdiffusion_path, 'models/checkpoints'), 
+                        use_safetensors=False,
+                        local_files_only=self.local_files_only,
+                        torch_dtype = torch.float16,
+                        # variant="fp16",
+                        add_watermarker=False,
+                        safety_checker=None
+                    ).to(device=self.device, dtype=self.dtype)
         except Exception as e:  # No model found
             #traceback.print_exc()
-            print("Model load has failed. Doesn't exist.")
+            print(f"Error {e.args[0]}")
             print(e)
 
         stream = StreamDiffusion(

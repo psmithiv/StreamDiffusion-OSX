@@ -693,6 +693,8 @@ class StreamDiffusion:
                 x = self.image_processor.preprocess(x, self.height, self.width).to(
                     device=self.device, dtype=self.dtype
                 )
+                # x -= x.min()
+                # x /= x.max()
                 if self.similar_image_filter:
                     x = self.similar_filter(x)
                     if x is None:
