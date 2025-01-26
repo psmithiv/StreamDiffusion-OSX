@@ -469,7 +469,7 @@ class StreamDiffusionWrapper:
                         local_files_only=self.local_files_only,
                         torch_dtype = torch.float16,
                         variant="fp16",
-                        add_watermarker=False,
+                        # add_watermarker=False,
                         safety_checker=None
                     ).to(device=self.device, dtype=self.dtype)
                 except:

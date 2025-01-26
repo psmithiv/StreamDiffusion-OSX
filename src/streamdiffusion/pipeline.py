@@ -361,7 +361,7 @@ class StreamDiffusion:
             and self.previous_negative_prompt == negative_prompt 
         ):
             return
-        print('new prompt')
+
         if negative_prompt is None:
             encoder_output = self.pipe.encode_prompt(
                 prompt=prompt,
